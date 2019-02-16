@@ -23,3 +23,15 @@
 #define PD_DDR _SFR_(0x11)
 #define PD_CR1 _SFR_(0x12)
 #define PD_CR2 _SFR_(0x13)
+
+#define PE_ODR _SFR_(0x14)
+#define PE_IDR _SFR_(0x15)
+#define PE_DDR _SFR_(0x16)
+#define PE_CR1 _SFR_(0x17)
+#define PE_CR2 _SFR_(0x18)
+
+#define PF_ODR _SFR_(0x19)
+#define PF_IDR _SFR_(0x1A)
+#define PF_DDR _SFR_(0x1B)
+#define PF_CR1 _SFR_(0x1C)
+#define PF_CR2 _SFR_(0x1D)
