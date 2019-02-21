@@ -35,3 +35,15 @@
 #define PF_DDR _SFR_(0x1B)
 #define PF_CR1 _SFR_(0x1C)
 #define PF_CR2 _SFR_(0x1D)
+
+#define UART_SR _SFR_(0x230)
+#define UART_TXE 7
+#define UART_TC 6
+#define UART_RXNE 5
+#define UART_DR _SFR_(0x231)
+#define UART_BRR1 _SFR_(0x232)
+#define UART_BRR2 _SFR_(0x233)
+#define UART_CR1 _SFR_(0x234)
+#define UART_CR2 _SFR_(0x235)
+#define UART_TEN 3
+#define UART_REN 2

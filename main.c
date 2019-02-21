@@ -14,12 +14,27 @@ static void cfg_hw(void) {
 	PD_CR1 |= BUZZER;
 
 	/* POWER BUTTON */
-	PD_DDR &= ~PWR_BTN;
-	PD_CR1 &= ~PWR_BTN;
+	PC_DDR &= ~PWR_BTN;
+	PC_CR1 |= PWR_BTN;
+	PC_CR2 &= ~PWR_BTN;
 
 	/* BUCK ENABLE */
 	PC_DDR |= BUCK_EN;
 	PC_CR1 |= BUCK_EN;
+
+	/* MOTORS */
+	PB_DDR |= MOT_L_BI | MOT_L_FI;
+	PB_CR1 |= MOT_L_BI | MOT_L_FI;
+	PC_DDR |= MOT_R_BI | MOT_R_FI;
+	PC_CR1 |= MOT_R_BI | MOT_R_FI;
+
+	/* ENABLE SENSORS & LEDS */
+	PD_DDR |= SENSE_EN;
+	PD_CR1 |= SENSE_EN;
+
+	PB_DDR &= ~((1 << 3));
+	PB_CR1 |= ((1 << 3));;
+	PB_CR2 &= ~((1 << 3));;
 }
 
 static void set_leds(bool red, bool green) {
@@ -35,10 +50,74 @@ static void set_buck(bool en) {
 	}
 }
 
+static void set_beep(bool en) {
+	if (en) {
+		PD_ODR |= BUZZER;
+	} else {
+		PD_ODR &= ~BUZZER;
+	}
+}
+
 static bool read_btn(void) {
-	return !!(PD_IDR & PWR_BTN);
+	return !(PC_IDR & PWR_BTN);
+}
+
+static void set_motor_left(bool fi, bool bi) {
+	PB_ODR |= (fi ? MOT_L_FI : 0) | (bi ? MOT_L_BI : 0);
+	PB_ODR &= ~((!fi ? MOT_L_FI : 0) | (!bi ? MOT_L_BI : 0));
+}
+
+static void set_motor_right(bool fi, bool bi) {
+	PC_ODR |= (fi ? MOT_R_FI : 0) | (bi ? MOT_R_BI : 0);
+	PC_ODR &= ~((!fi ? MOT_R_FI : 0) | (!bi ? MOT_R_BI : 0));
+}
+
+static void set_sensor_enable(bool en) {
+	if (en) {
+		PD_ODR |= SENSE_EN;
+	} else {
+		PD_ODR &= ~SENSE_EN;
+	}
+}
+
+static void uart_init() {
+    UART_BRR2 = 0x00;
+    UART_BRR1 = 0x0D;
+    UART_CR2 = (1 << UART_TEN) | (1 << UART_REN);
+}
+
+static void uart_write(uint8_t data) {
+    UART_DR = data;
+    while (!(UART_SR & (1 << UART_TC)));
+}
+
+static void uart_writes(const char *str) {
+	for (; *str; str++) {
+		uart_write(*str);
+	}
 }
 
 void main(void) {
 	cfg_hw();
+	uart_init();
+
+	set_sensor_enable(1);
+	set_beep(0);
+	set_buck(0);
+	set_leds(0,0);
+	set_motor_left(0,0);
+	set_motor_right(0,0);
+
+	while (1) {
+		if (read_btn()) {
+			set_beep(1);
+			set_leds(1,0);
+		} else {
+			set_beep(0);
+			set_leds(0,1);
+		}
+
+		uart_writes("CC dille :)\n");
+		uart_writes((PB_IDR & (1 << 3)) ? "PB3 = 1" : "PB3 = 0");
+	}
 }
