@@ -13,3 +13,5 @@
 #define MOT_R_FI (1 << 3)
 
 #define SENSE_EN (1 << 0)
+
+#define LEFT_BUMPER_BTN (1 << 2)
